@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="top.xuxuzhaozhao.dao.IAccountDao">
+    <!-- 立即加载实现 -->
+    <!--<resultMap id="accountUser" type="account">-->
+    <!--    <id column="aid" property="id"/>-->
+    <!--    <result column="uid" property="uid"/>-->
+    <!--    <result column="money" property="money"/>-->
+    <!--    <association property="user" column="uid" javaType="top.xuxuzhaozhao.domain.User">-->
+    <!--        <id column="id" property="id"/>-->
+    <!--        <result column="username" property="username"/>-->
+    <!--        <result column="address" property="address"/>-->
+    <!--        <result column="sex" property="sex"/>-->
+    <!--        <result column="birthday" property="birthday"/>-->
+    <!--    </association>-->
+    <!--</resultMap>-->
+
+    <!-- 一对一，延迟加载实现-->
+    <resultMap id="accountUser" type="account">
+        <id column="id" property="id"/>
+        <result column="uid" property="uid"/>
+        <result column="money" property="money"/>
+        <!-- select：查询用户的唯一标识 -->
+        <!-- column：根据【SELECT * FROM account】中的uid，必须写 -->
+        <association property="user" column="uid" javaType="user" select="top.xuxuzhaozhao.dao.IUserDao.GetUser">
+            <id column="id" property="id"/>
+            <result column="username" property="username"/>
+            <result column="address" property="address"/>
+            <result column="sex" property="sex"/>
+            <result column="birthday" property="birthday"/>
+        </association>
+    </resultMap>
+
+    <select id="GetAll" resultMap="accountUser">
+        SELECT * FROM account;
+    </select>
+
+    <select id="findAccountByUid" parameterType="java.lang.Integer" resultType="Account">
+        SELECT * FROM account WHERE uid = #{uid};
+    </select>
+</mapper>

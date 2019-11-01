@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <!-- 定义配置属性 -->
+    <properties resource="jdbc.properties">
+    <!-- <property name="driver" value="com.mysql.jdbc.Driver"/>-->
+    <!-- <property name="url" value="jdbc:mysql://localhost:3306/mybatis_test?useSSL=false"/>-->
+    <!-- <property name="username" value="root"/>-->
+    <!-- <property name="password" value="zywoaini1314"/>-->
+
+    <!-- 直接从properties中读取信息 只需指定配置文件位置即可-->
+
+    </properties>
+
+    <settings>
+        <!-- 开启mybatis全局延迟加载 -->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!-- 将积极加载改为消息加载（按需加载） -->
+        <setting name="aggressiveLazyLoading" value="false"/>
+
+        <!-- 支持二级缓存 -->
+        <!-- 1、SqlMapConfig.xml配置,默认就是true -->
+        <!-- 2、IUserDao.xml中配置 -->
+        <!-- 3、select标签中支持二级缓存 -->
+    </settings>
+
+    <!-- 配置别名，在dao.xml中resultType直接可以写上别名-->
+    <typeAliases>
+        <!-- 只能一个一个写实体类别名 -->
+        <!-- <typeAlias type="top.xuxuzhaozhao.domain.User" alias="user"/>-->
+
+        <!-- 这样这个包里面的所有实体类都会自动注册别名，跟上边一样-->
+        <package name="top.xuxuzhaozhao.domain"/>
+    </typeAliases>
+
+    <environments default="mysql">
+        <environment id="mysql">
+            <transactionManager type="JDBC"/>
+            <!-- 取值：POOLED：采用传统的javax.sql.DataSource规范中的连接池 -->
+            <!-- 取值：UNPOOLED：没有实现池 -->
+            <!-- 取值：JNDI：通过此技术不同的服务器所能拿到的不同，如果tomcat服务器实现的就是dbcp连接池【注意：如果不是web或maven工程，此属性无效】 -->
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <!-- <mapper resource="top/xuxuzhaozhao/dao/IUserDao.xml"/>-->
+        <!-- <mapper resource="top/xuxuzhaozhao/dao/IAccountDao.xml"/>-->
+        <!-- <mapper resource="top/xuxuzhaozhao/dao/IRoleDao.xml"/>-->
+
+        <!-- 指定配置文件的包即可注册这个包里面的所有xml -->
+        <package name="top.xuxuzhaozhao.dao"/>
+    </mappers>
+</configuration>

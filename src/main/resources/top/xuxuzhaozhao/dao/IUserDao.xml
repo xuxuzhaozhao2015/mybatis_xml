@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="top.xuxuzhaozhao.dao.IUserDao">
+    <!-- 抽取重复的sql语句 -->
+    <sql id="defaultUserSql">
+        SELECT * FROM user
+    </sql>
+
+    <!-- 一对多，立即加载 -->
+    <!--<resultMap id="userAccount" type="top.xuxuzhaozhao.domain.User">-->
+    <!--    <id column="id" property="id"/>-->
+    <!--    <result column="username" property="username"/>-->
+    <!--    <result column="sex" property="sex"/>-->
+    <!--    <result column="address" property="address"/>-->
+    <!--    <result column="birthday" property="birthday"/>-->
+    <!--    <collection property="accounts" ofType="top.xuxuzhaozhao.domain.Account">-->
+    <!--        <id column="aid" property="id"/>-->
+    <!--        <result column="uid" property="uid"/>-->
+    <!--        <result column="money" property="money"/>-->
+    <!--    </collection>-->
+    <!--</resultMap>-->
+    <!--  一对多，立即加载 -->
+    <!--<select id="GetAll" resultMap="userAccount">-->
+    <!--    select * from user;-->
+    <!--    <include refid="defaultUserSql"/>-->
+    <!--    SELECT u.*,a.`id` AS aid,a.`money`,a.`uid` FROM USER u-->
+    <!--    LEFT JOIN account a ON u.`id` = a.`uid`-->
+    <!--</select>-->
+
+    <!-- 开启支持二级缓存 -->
+    <cache/>
+
+    <!-- 一对多，延迟加载 -->
+    <resultMap id="userAccount" type="user">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="sex" property="sex"/>
+        <result column="address" property="address"/>
+        <result column="birthday" property="birthday"/>
+        <!-- column:id为User的id -->
+        <collection property="accounts" ofType="Account"
+                    select="top.xuxuzhaozhao.dao.IAccountDao.findAccountByUid"
+                    column="id">
+        </collection>
+    </resultMap>
+
+    <select id="GetAll" resultMap="userAccount">
+        select * from user;
+    </select>
+
+
+    <!-- 多对多，立即加载-->
+    <!--<resultMap id="userRole" type="top.xuxuzhaozhao.domain.User">-->
+    <!--    <id column="id" property="id"/>-->
+    <!--    <result column="username" property="username"/>-->
+    <!--    <result column="sex" property="sex"/>-->
+    <!--    <result column="address" property="address"/>-->
+    <!--    <result column="birthday" property="birthday"/>-->
+    <!--    <collection property="roles" ofType="top.xuxuzhaozhao.domain.Role">-->
+    <!--        <id column="rid" property="id"/>-->
+    <!--        <result column="rolename" property="rolename"/>-->
+    <!--        <result column="roledesc" property="roledesc"/>-->
+    <!--    </collection>-->
+    <!--</resultMap>-->
+    <!-- 多对多，立即加载-->
+    <!--<select id="findAllUserRole" resultMap="userRole">-->
+    <!--    SELECT u.*,r.id AS rid,r.`rolename`,r.`roledesc` FROM USER u-->
+    <!--    LEFT JOIN user_role ur ON u.`id` = ur.`uid`-->
+    <!--    LEFT JOIN role r ON r.`id` = ur.`rid`-->
+    <!--</select>-->
+
+    <!-- select标签开启支持二级缓存-->
+    <select id="GetUser" resultType="top.xuxuzhaozhao.domain.User" useCache="true">
+        select * from user where id = #{id};
+    </select>
+
+    <insert id="AddUser" parameterType="top.xuxuzhaozhao.domain.User">
+        <selectKey keyColumn="id" keyProperty="id" resultType="java.lang.Integer">
+            select last_insert_id();
+        </selectKey>
+        insert into user(username,birthday,sex,address) values(#{username},#{birthday},#{sex},#{address});
+    </insert>
+
+    <update id="ModifiedUser">
+        update user set username=#{username},sex=#{sex},birthday=#{birthday},address=#{address} where id=#{id};
+    </update>
+
+    <delete id="DeleteUser" parameterType="java.lang.Integer">
+        delete from user where id = #{id};
+    </delete>
+
+    <select id="GetUserByCondition" resultType="top.xuxuzhaozhao.domain.User" parameterType="user">
+        select * from user
+        <where>
+            <if test="username != null and username != ''">
+                username = #{username}
+            </if>
+            <if test="sex != null and sex !=''">
+                and sex = #{sex}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据id集合来查询列表 -->
+    <select id="GetUserByIds" resultType="user">
+        select * from user
+        <where>
+            <if test="list != null and list.size()>0">
+                <foreach collection="list" open="and id in (" close=")" item="id" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>
